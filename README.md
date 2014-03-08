@@ -5,7 +5,7 @@ My Little App
 
 ---
 
-This is an [Ansible](https://github.com/ansible/ansible) playbook to easily set up your own Heroku clone using [Dokku](https://github.com/progrium/dokku).
+This is an [Ansible](https://github.com/ansible/ansible) playbook that from scratch will automatically turn a pristine server into your own Heroku clone. All you need is the server, a domain name, and a DNS service supporting alias records. Everything is powered by [Dokku](https://github.com/progrium/dokku), which itself runs on [Docker](https://www.docker.io/).
 
 
 Setup
