@@ -1,7 +1,7 @@
 My Little App
 =============
 
-#### Build your own Heroku clone with Ansible + Dokku
+#### Build your own Heroku clone with Ansible and Dokku
 
 ---
 
@@ -70,6 +70,7 @@ Additional notes
 
 * To give more users access to the setup, just add their public SSH to key the `authorized_keys` directory and run the playbook again.
 * By default, [Dokku](https://github.com/progrium/dokku) will be fetched from the `HEAD` of its `master` branch. If you want to use another branch, or a specific tag or commit, just change the `dokku_version=HEAD` part in `hosts`, for example `dokku_version=v0.2.2`.
+* For maximum encapsulation, you might want to install and run [Ansible](https://github.com/ansible/ansible) itself from a [virtual environment](http://virtualenvwrapper.readthedocs.org/).
 
 
 Improvements
