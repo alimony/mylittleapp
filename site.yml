@@ -1,0 +1,69 @@
+---
+- hosts: all
+  remote_user: root
+  sudo: yes
+  tasks:
+   - name: Ensure LC_ALL is set to fix annoying local errors on pristine server
+     lineinfile: dest=/etc/environment
+                 line="LC_ALL=en_US.UTF-8"
+                 state=present
+
+   - name: Ensure LANG is set to fix annoying local errors on pristine server
+     lineinfile: dest=/etc/environment
+                 line="LANG=en_US.UTF-8"
+                 state=present
+
+   - name: Set up authorized_keys for root user
+     authorized_key: user=root
+                     key="{{ lookup('file', item) }}"
+                     state=present
+     with_fileglob:
+       - authorized_keys/*
+
+   - name: Install packages
+     apt: pkg={{ item }}
+          state=latest
+     with_items:
+     - aufs-tools
+     - build-essential
+     - git
+     - software-properties-common
+
+   - name: Update all package definitions and upgrade all installed packages
+     apt: upgrade=dist
+          update_cache=yes
+
+   - name: Refresh dokku repository, cloning it if non-existent
+     git: repo={{ dokku_git_repo }}
+          dest=/root/dokku
+          version={{ dokku_version }}
+
+   - name: Install dokku from the latest repo version
+     command: sudo /usr/bin/make install
+              chdir=/root/dokku
+
+   - name: Set up authorized_keys for dokku user
+     # TODO: The last touch is a hack, 'creates' should do it for us... but that doesn't work for some reason.
+     shell: echo {{ lookup('file', item) }} | sudo sshcommand acl-add dokku progrium && touch /home/dokku/.acl-add-done
+            creates=/home/dokku/.acl-add-done
+     with_fileglob:
+       - authorized_keys/*
+
+   - name: Copy custom default nginx configuration to sites
+     template: src=nginx.conf.j2
+               dest=/etc/nginx/sites-available/{{ inventory_hostname }}
+               force=yes
+
+   - name: Disable the existing default nginx site
+     file: path=/etc/nginx/sites-enabled/default
+           state=absent
+
+   - name: Enable the custom default nginx site
+     file: src=/etc/nginx/sites-available/{{ inventory_hostname }}
+           dest=/etc/nginx/sites-enabled/{{ inventory_hostname }}
+           state=link
+           force=yes
+
+   - name: Reload nginx configuration
+     service: name=nginx
+              state=reloaded
