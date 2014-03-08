@@ -68,7 +68,7 @@ Touching the `.nginx` file is how the [nginx buildpack](https://github.com/rhy-j
 Additional notes
 ----------------
 
-* To give more users access, add their public SSH to key the `authorized_keys` directory and run the playbook again.
+* To give more users access to the setup, just add their public SSH to key the `authorized_keys` directory and run the playbook again.
 * By default, [Dokku](https://github.com/progrium/dokku) will be fetched from the `HEAD` of its `master` branch. If you want to use another branch, or a specific tag or commit, just change the `dokku_version=HEAD` part in `hosts`, for example `dokku_version=v0.2.2`.
 
 
