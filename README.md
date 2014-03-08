@@ -62,7 +62,7 @@ git commit -m 'Initial commit.'
 git remote add deploy dokku@mylittleapp.org:mylittleapp.org
 ```
 
-Touching the `.nginx` is how the [nginx buildpack](https://github.com/rhy-jot/buildpack-nginx) detects it's a static application, and all files should live in the `www` directory.
+Touching the `.nginx` file is how the [nginx buildpack](https://github.com/rhy-jot/buildpack-nginx) detects it's a static application. All the actual files for the site should live in the `www` directory.
 
 
 Additional notes
