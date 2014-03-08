@@ -1,11 +1,11 @@
 My Little App
 =============
 
-#### Build your own Heroku clone with Ansible and Dokku
+#### Easy setup of your own Heroku clone with Ansible and Dokku
 
 ---
 
-This is an [Ansible](https://github.com/ansible/ansible) playbook to build your own Heroku clone using [Dokku](https://github.com/progrium/dokku).
+This is an [Ansible](https://github.com/ansible/ansible) playbook to easily set up your own Heroku clone using [Dokku](https://github.com/progrium/dokku).
 
 
 Setup
