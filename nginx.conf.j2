@@ -3,7 +3,7 @@ server {
 	listen [::]:80 default_server ipv6only=on;
 
 	# Redirect to main host.
-	return 301 $scheme://{{ inventory_hostname }};
+	return 301 $scheme://{{ ansible_fqdn }};
 
 	# But keep some root settings, just to be sure.
 	root /usr/share/nginx/html;

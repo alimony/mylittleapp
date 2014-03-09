@@ -174,7 +174,7 @@
 
     - name: Copy custom default nginx configuration to sites
       template: src=nginx.conf.j2
-                dest=/etc/nginx/sites-available/{{ ansible_hostname }}
+                dest=/etc/nginx/sites-available/{{ ansible_fqdn }}
                 force=yes
 
     - name: Disable the existing default nginx site
@@ -182,8 +182,8 @@
             state=absent
 
     - name: Enable the custom default nginx site
-      file: src=/etc/nginx/sites-available/{{ ansible_hostname }}
-            dest=/etc/nginx/sites-enabled/{{ ansible_hostname }}
+      file: src=/etc/nginx/sites-available/{{ ansible_fqdn }}
+            dest=/etc/nginx/sites-enabled/{{ ansible_fqdn }}
             state=link
             force=yes
 
