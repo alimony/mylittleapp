@@ -1,0 +1,4 @@
+hosts
+host_vars/*
+!host_vars/mylittleapp.org.template
+authorized_keys/*
