@@ -1,69 +1,146 @@
 ---
 - hosts: all
-  remote_user: root
-  sudo: yes
+  gather_facts: False
+  connection: local
   tasks:
-   - name: Ensure LC_ALL is set to fix annoying local errors on pristine server
-     lineinfile: dest=/etc/environment
-                 line="LC_ALL=en_US.UTF-8"
-                 state=present
 
-   - name: Ensure LANG is set to fix annoying local errors on pristine server
-     lineinfile: dest=/etc/environment
-                 line="LANG=en_US.UTF-8"
-                 state=present
+    # If the variable 'server_provider' is specified in the host variables, we
+    # will create a new server as first step in the deploy process. But any SSH
+    # keys will have to be added before that can happen, which is why we
+    # delegate to localhost; there is no host yet.
 
-   - name: Set up authorized_keys for root user
-     authorized_key: user=root
-                     key="{{ lookup('file', item) }}"
+    - name: Make sure all public SSH keys are on DigitalOcean.
+      digital_ocean: command=ssh
+                     ssh_pub_key="{{ lookup('file', item) }}"
+                     name={{ item | basename }}
                      state=present
-     with_fileglob:
-       - authorized_keys/*
+                     client_id={{ do_client_id }}
+                     api_key={{ do_api_key }}
+      with_fileglob:
+        - authorized_keys/*
+      register: result
+      when: server_provider == 'digital_ocean'
 
-   - name: Install packages
-     apt: pkg={{ item }}
-          state=latest
-     with_items:
-     - aufs-tools
-     - build-essential
-     - git
-     - software-properties-common
+    # Get or create a droplet for this hostname, which will have all available
+    # SSH keys added to it by default.
+    - name: Create a DigitalOcean droplet for this hostname.
+      digital_ocean: command=droplet
+                     state=present
+                     ssh_key_ids={{ result['results'] | map(attribute='ssh_key') | map(attribute='id') | join(',') }}
+                     name={{ inventory_hostname }}
+                     region_id={{ do_region_id }}
+                     image_id={{ do_image_id }}
+                     size_id={{ do_size_id }}
+                     state=active
+                     unique_name=yes
+                     client_id={{ do_client_id }}
+                     api_key={{ do_api_key }}
+      register: result
+      when: server_provider == 'digital_ocean'
 
-   - name: Update all package definitions and upgrade all installed packages
-     apt: upgrade=dist
-          update_cache=yes
+    - name: Display whether a droplet was created or not.
+      debug: msg="Created new droplet for {{ inventory_hostname }}"
+      when: result|changed and server_provider == 'digital_ocean'
 
-   - name: Refresh dokku repository, cloning it if non-existent
-     git: repo={{ dokku_git_repo }}
-          dest=/root/dokku
-          version={{ dokku_version }}
+    - name: Add the new server address to a group for later reference.
+      add_host: name={{ result['droplet']['ip_address'] }}
+                groups=dokku
+      when: server_provider == 'digital_ocean'
 
-   - name: Install dokku from the latest repo version
-     command: sudo /usr/bin/make install
-              chdir=/root/dokku
+    # This will set up some "fake" variables by exposing those available to the
+    # name based host to the ip based host. They will later be references using
+    # a kind of weird hack.
 
-   - name: Set up authorized_keys for dokku user
-     # TODO: The last touch is a hack, 'creates' should do it for us... but that doesn't work for some reason.
-     shell: echo {{ lookup('file', item) }} | sudo sshcommand acl-add dokku progrium && touch /home/dokku/.acl-add-done
-            creates=/home/dokku/.acl-add-done
-     with_fileglob:
-       - authorized_keys/*
+    - set_fact: ip_address={{ result['droplet']['ip_address'] }}
+      when: server_provider == 'digital_ocean'
 
-   - name: Copy custom default nginx configuration to sites
-     template: src=nginx.conf.j2
-               dest=/etc/nginx/sites-available/{{ inventory_hostname }}
-               force=yes
+    - set_fact: dokku_git_repo={{ dokku_git_repo }}
+      when: server_provider == 'digital_ocean'
 
-   - name: Disable the existing default nginx site
-     file: path=/etc/nginx/sites-enabled/default
-           state=absent
+    - set_fact: dokku_version={{ dokku_version }}
+      when: server_provider == 'digital_ocean'
 
-   - name: Enable the custom default nginx site
-     file: src=/etc/nginx/sites-available/{{ inventory_hostname }}
-           dest=/etc/nginx/sites-enabled/{{ inventory_hostname }}
-           state=link
-           force=yes
+    # If server_provider is not defined for this host, we will assume that the
+    # hostname itself is set up and reachable through SSH.
+    - name: Add hostname to group for later reference.
+      add_host: name={{ server_provider }}
+                groups=dokku
+      when: server_provider is not defined
 
-   - name: Reload nginx configuration
-     service: name=nginx
-              state=reloaded
+- hosts: dokku
+  # TODO: Do not hardcode the remote username.
+  remote_user: root
+  tasks:
+
+    - set_fact: dokku_git_repo={{ item.value.dokku_git_repo }}
+      with_dict: hostvars
+      when: item.value.ip_address is defined and inventory_hostname == item.value.ip_address
+
+    - set_fact: dokku_version={{ item.value.dokku_version }}
+      with_dict: hostvars
+      when: item.value.ip_address is defined and inventory_hostname == item.value.ip_address
+
+    - name: Ensure LC_ALL is set to fix annoying local errors on pristine server
+      lineinfile: dest=/etc/environment
+                  line="LC_ALL=en_US.UTF-8"
+                  state=present
+
+    - name: Ensure LANG is set to fix annoying local errors on pristine server
+      lineinfile: dest=/etc/environment
+                  line="LANG=en_US.UTF-8"
+                  state=present
+
+    - name: Set up authorized_keys for root user
+      authorized_key: user=root
+                      key="{{ lookup('file', item) }}"
+                      state=present
+      with_fileglob:
+        - authorized_keys/*
+
+    - name: Install packages
+      apt: pkg={{ item }}
+           state=latest
+      with_items:
+      - aufs-tools
+      - build-essential
+      - git
+      - software-properties-common
+
+    - name: Update all package definitions and upgrade all installed packages
+      apt: upgrade=dist
+           update_cache=yes
+
+    - name: Refresh dokku repository, cloning it if non-existent
+      git: repo={{ dokku_git_repo }}
+           dest=/root/dokku
+           version={{ dokku_version }}
+
+    - name: Install dokku from the latest repo version
+      command: sudo /usr/bin/make install
+               chdir=/root/dokku
+
+    - name: Set up authorized_keys for dokku user
+      # TODO: The last touch is a hack, 'creates' should do it for us... but that doesn't work for some reason.
+      shell: echo {{ lookup('file', item) }} | sudo sshcommand acl-add dokku progrium && touch /home/dokku/.acl-add-done
+             creates=/home/dokku/.acl-add-done
+      with_fileglob:
+        - authorized_keys/*
+
+    - name: Copy custom default nginx configuration to sites
+      template: src=nginx.conf.j2
+                dest=/etc/nginx/sites-available/{{ ansible_hostname }}
+                force=yes
+
+    - name: Disable the existing default nginx site
+      file: path=/etc/nginx/sites-enabled/default
+            state=absent
+
+    - name: Enable the custom default nginx site
+      file: src=/etc/nginx/sites-available/{{ ansible_hostname }}
+            dest=/etc/nginx/sites-enabled/{{ ansible_hostname }}
+            state=link
+            force=yes
+
+    - name: Reload nginx configuration
+      service: name=nginx
+               state=reloaded

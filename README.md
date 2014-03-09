@@ -15,7 +15,7 @@ Just follow these instructions, and you will soon be up and running:
 
 1. **Register a domain name** where your applications will live, for example `mylittleapp.org`. Each application will run on a subdomain of this host, e.g. `helloworld.mylittleapp.org`.
 
-2. **Set up a new server** that you can access by SSH key only. This playbook has been tested on a new Ubuntu 13.04 droplet on [Digital Ocean](https://www.digitalocean.com/), but a variety of other setups should work as well.
+2. **Set up a new server** that you can access by SSH key only. This playbook has been tested on a new Ubuntu 13.04 droplet on [DigitalOcean](https://www.digitalocean.com/), but a variety of other setups should work as well.
 
 3. **Set up two DNS entries** for the new domain name, both pointing at the new server's IP address:
  * One `A` record for `mylittleapp.org`
