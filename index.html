@@ -78,7 +78,7 @@ git remote add deploy dokku@mylittleapp.org:helloworld
 git push deploy master
 </pre></div>
 
-<p>There will now be application deployment magic happening, much like you're used to from Heroku. The application type is auto-detected and everything needed to run it will be installed (inside a <a href="https://www.docker.io/">Docker</a> container) and launched. To visit your new application, just go to <code>&lt;appname&gt;.mylittleapp.org</code>. (In the example above that would be <code>helloworld.mylittleapp.org</code>.)</p>
+<p>There will now be application deployment magic happening, much like you're used to from Heroku. The application type is auto-detected and everything needed to run it will be installed (inside a Docker container) and launched. To visit your new application, just go to <code>&lt;appname&gt;.mylittleapp.org</code>. (In the example above that would be <code>helloworld.mylittleapp.org</code>.)</p>
 
 <p>All subdomains that are not pointing at an application will redirect to the main hostname. If you want to run an application at the main hostname, create one with just your domain name as its name:</p>
 
@@ -94,8 +94,8 @@ git push deploy master
 
 <p>Touching the <code>.nginx</code> file is how the <a href="https://github.com/rhy-jot/buildpack-nginx">nginx buildpack</a> detects it's a static application. All the actual files for the site should live in the <code>www</code> directory.</p>
 
-<h4>
-<a name="important" class="anchor" href="#important"><span class="octicon octicon-link"></span></a>Important</h4>
+<h3>
+<a name="important" class="anchor" href="#important"><span class="octicon octicon-link"></span></a>Important</h3>
 
 <p>You should really set up an application at the main hostname, or it will be in a redirection loop.</p>
 
@@ -104,8 +104,8 @@ git push deploy master
 
 <ul>
 <li>To give more users access to the setup, just add their public SSH to key the <code>authorized_keys</code> directory and run the playbook again.</li>
-<li>By default, <a href="https://github.com/progrium/dokku">Dokku</a> will be fetched from the <code>HEAD</code> of its <code>master</code> branch. If you want to use another branch, or a specific tag or commit, just change the <code>dokku_version=HEAD</code> part in <code>hosts</code>, for example <code>dokku_version=v0.2.2</code>.</li>
-<li>For maximum encapsulation, you might want to install and run <a href="https://github.com/ansible/ansible">Ansible</a> itself from a <a href="http://virtualenvwrapper.readthedocs.org/">virtual environment</a>. Just <code>cd</code> into your Ansible directory and run <code>pip install -e .</code> to install all its dependencies.</li>
+<li>By default, Dokku will be fetched from the <code>HEAD</code> of its <code>master</code> branch. If you want to use another branch, or a specific tag or commit, just change the <code>dokku_version=HEAD</code> part in <code>hosts</code>, for example <code>dokku_version=v0.2.2</code>.</li>
+<li>For maximum encapsulation, you might want to install and run Ansible itself from a <a href="http://virtualenvwrapper.readthedocs.org/">virtual environment</a>. Just <code>cd</code> into your Ansible directory and run <code>pip install -e .</code> to install all its dependencies.</li>
 </ul><h2>
 <a name="improvements" class="anchor" href="#improvements"><span class="octicon octicon-link"></span></a>Improvements</h2>
 
@@ -116,8 +116,13 @@ git push deploy master
 
 <p>This is my first public Ansible playbook ever. Much of it is probably written in a sub-optimal way, since I have yet to learn all the ins and outs of how to organize playbooks, roles, etc. If you have useful input, let me know. I will happily learn and adjust. I can't guarantee that this playbook will not hurt your server, so please only run it on a fresh one, or one that you do not care for :)</p>
 
-<hr><h4>
-<a name="my-little-crazy-one-shot-auto-setup" class="anchor" href="#my-little-crazy-one-shot-auto-setup"><span class="octicon octicon-link"></span></a>My Little Crazy One Shot Auto Setup™</h4>
+<h2>
+<a name="credits" class="anchor" href="#credits"><span class="octicon octicon-link"></span></a>Credits</h2>
+
+<p>My Little App is merely a piece of glue. The heavy lifting is carried out by <a href="http://www.ansible.com/home">Ansible</a>, <a href="https://github.com/progrium/dokku">Dokku</a> and <a href="https://www.docker.io/">Docker</a>, as well as all other parts of great open source software running today's internet infrastructure. If you like this project, please check out the others, and try to help out where you can. Thank you!</p>
+
+<hr><h3>
+<a name="my-little-crazy-one-shot-auto-setup" class="anchor" href="#my-little-crazy-one-shot-auto-setup"><span class="octicon octicon-link"></span></a>My Little Crazy One Shot Auto Setup™</h3>
 
 <p>If you are feeling adventurous, there is experimental work on creating a server and setting up DNS records as part of the playbook. This means you can go from nothing to a fully working Heroku clone with one single command. Currently, only DigitalOcean and Amazon Route 53 is supported. To try this out, make sure you meet these requirements:</p>
 
