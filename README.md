@@ -91,6 +91,11 @@ Disclaimer
 ----------
 This is my first public Ansible playbook ever. Much of it is probably written in a sub-optimal way, since I have yet to learn all the ins and outs of how to organize playbooks, roles, etc. If you have useful input, let me know. I will happily learn and adjust. I can't guarantee that this playbook will not hurt your server, so please only run it on a fresh one, or one that you do not care for :)
 
+
+Credits
+-------
+My Little App is merely a piece of glue. The heavy lifting is carried out by [Ansible](http://www.ansible.com/home), [Dokku](https://github.com/progrium/dokku) and [Docker](https://www.docker.io/), as well as all other parts of great open source software running today's internet infrastructure. If you like this project, please check out the others, and try to help out where you can. Thank you!
+
 ---
 
 ###### My Little Crazy One Shot Auto Setup™
