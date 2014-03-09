@@ -11,6 +11,8 @@ This is an [Ansible](https://github.com/ansible/ansible) playbook that from scra
 Setup
 -----
 
+([Click here if you are feeling adventurous.](#my-little-crazy-one-shot-auto-setup))
+
 Just follow these instructions, and you will soon be up and running:
 
 1. **Register a domain name** where your applications will live, for example `mylittleapp.org`. Each application will run on a subdomain of this host, e.g. `helloworld.mylittleapp.org`.
@@ -76,3 +78,25 @@ Additional notes
 Improvements
 ------------
 The purpose of this deliberately simple setup is to get you up and running as easy as possible. Only what should be useful to most people is included, which will continue to be the criteria for any changes. With that said, there is of course room for much improvement. If you have ideas, please [open an issue](https://github.com/alimony/mylittleapp/issues) about it, or open a pull request directly if you have code to contribute.
+
+
+Disclaimer
+----------
+This is my first public Ansible playbook ever. Much of it is probably written in a sub-optimal way, since I have yet to learn all the ins and outs of how to organize playbooks, roles, etc. If you have useful input, let me know. I will happily learn and adjust. I can't guarantee that this playbook will not hurt your server, so please only run it on a fresh one, or one that you do not care for :)
+
+---
+
+###### My Little Crazy One Shot Auto Setup™
+
+If you are feeling adventurous, there is experimental work on creating a server and setting up DNS records as part of the playbook. This means you can go from nothing to a fully working Heroku clone with one single command. Currently, only DigitalOcean and Amazon Route 53 is supported. To try this out, make sure you meet these requirements:
+
+ * You have a new domain name with its name servers pointed at a hosted zone in Amazon Route 53.
+ * You have your API credentials for both DigitalOcean and Amazon Web Services handy.
+
+This is how to proceed:
+
+ 1. Edit your host in the `host_vars` directory, uncommenting the `server_provider` and `dns_provider` lines. See the [host template](host_vars/mylittleapp.org.template) for more information.
+ 2. Fill in all `do_` and `aws_` setting values.
+ 3. Run the playbook and enjoy: `ansible-playbook site.yml -v`
+
+Hopefully, the end result will be the same as before, with with far less work. Note that this feature is highly experimental and needs a lot more testing to be considered stable.
