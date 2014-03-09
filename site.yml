@@ -21,7 +21,7 @@
       with_fileglob:
         - authorized_keys/*
       register: result
-      when: server_provider == 'digital_ocean'
+      when: server_provider is defined and server_provider == 'digital_ocean'
 
     # Get or create a droplet for this hostname, which will have all available
     # SSH keys added to it by default.
@@ -38,7 +38,7 @@
                      client_id={{ do_client_id }}
                      api_key={{ do_api_key }}
       register: result
-      when: server_provider == 'digital_ocean'
+      when: server_provider is defined and server_provider == 'digital_ocean'
 
     # If a new server was created, it will have a new SSH signature. Since ip
     # addresses are often reused on DigitalOcean, you will probably get one that
@@ -50,18 +50,18 @@
       lineinfile: dest=~/.ssh/known_hosts
                   regexp="^{{ result['droplet']['ip_address'] }}"
                   state=absent
-      when: server_provider == 'digital_ocean' and result|changed
+      when: server_provider is defined and server_provider == 'digital_ocean' and result|changed
 
     - name: Make sure the new server's host name is not already in known_hosts.
       lineinfile: dest=~/.ssh/known_hosts
                   regexp="^{{ inventory_hostname }}"
                   state=absent
-      when: server_provider == 'digital_ocean' and result|changed
+      when: server_provider is defined and server_provider == 'digital_ocean' and result|changed
 
     - name: Add the new server address to a group for later reference.
       add_host: name={{ result['droplet']['ip_address'] }}
                 groups=dokku
-      when: server_provider == 'digital_ocean'
+      when: server_provider is defined and server_provider == 'digital_ocean'
 
     # This will set up some "fake" variables by exposing those available to the
     # name based host to the ip based host. They will later be references using
@@ -69,18 +69,18 @@
     # TODO: Reorganize the whole project to avoid such folly.
 
     - set_fact: ip_address={{ result['droplet']['ip_address'] }}
-      when: server_provider == 'digital_ocean'
+      when: server_provider is defined and server_provider == 'digital_ocean'
 
     - set_fact: dokku_git_repo={{ dokku_git_repo }}
-      when: server_provider == 'digital_ocean'
+      when: server_provider is defined and server_provider == 'digital_ocean'
 
     - set_fact: dokku_version={{ dokku_version }}
-      when: server_provider == 'digital_ocean'
+      when: server_provider is defined and server_provider == 'digital_ocean'
 
     # If server_provider is not defined for this host, we will assume that the
     # hostname itself is set up and reachable through SSH.
     - name: Add hostname to group for later reference.
-      add_host: name={{ server_provider }}
+      add_host: name={{ inventory_hostname }}
                 groups=dokku
       when: server_provider is not defined
 
@@ -95,7 +95,7 @@
                aws_access_key={{ aws_access_key }}
                aws_secret_key={{ aws_secret_key }}
       register: result
-      when: dns_provider == 'route53'
+      when: dns_provider is defined and dns_provider == 'route53'
 
     - name: Add A record to DNS for this hostname.
       route53: command=create
@@ -107,7 +107,7 @@
                overwrite=yes
                aws_access_key={{ aws_access_key }}
                aws_secret_key={{ aws_secret_key }}
-      when: dns_provider == 'route53' and result.set | length == 0
+      when: dns_provider is defined and dns_provider == 'route53' and result.set | length == 0
 
     - name: Add A wildcard DNS record for this hostname.
       route53: command=create
@@ -119,7 +119,7 @@
                overwrite=yes
                aws_access_key={{ aws_access_key }}
                aws_secret_key={{ aws_secret_key }}
-      when: dns_provider == 'route53' and result.set | length == 0
+      when: dns_provider is defined and dns_provider == 'route53' and result.set | length == 0
 
 - hosts: dokku
   # TODO: Do not hardcode the remote username.
