@@ -52,7 +52,7 @@ git remote add deploy dokku@mylittleapp.org:helloworld
 git push deploy master
 ```
 
-There will now be application deployment magic happening, much like you're used to from Heroku. The application type is auto-detected and everything needed to run it will be installed (inside a [Docker](https://www.docker.io/) container) and launched. To visit your new application, just go to `<appname>.mylittleapp.org`. (In the example above that would be `helloworld.mylittleapp.org`.)
+There will now be application deployment magic happening, much like you're used to from Heroku. The application type is auto-detected and everything needed to run it will be installed (inside a Docker container) and launched. To visit your new application, just go to `<appname>.mylittleapp.org`. (In the example above that would be `helloworld.mylittleapp.org`.)
 
 All subdomains that are not pointing at an application will redirect to the main hostname. If you want to run an application at the main hostname, create one with just your domain name as its name:
 
@@ -78,8 +78,8 @@ Additional notes
 ----------------
 
 * To give more users access to the setup, just add their public SSH to key the `authorized_keys` directory and run the playbook again.
-* By default, [Dokku](https://github.com/progrium/dokku) will be fetched from the `HEAD` of its `master` branch. If you want to use another branch, or a specific tag or commit, just change the `dokku_version=HEAD` part in `hosts`, for example `dokku_version=v0.2.2`.
-* For maximum encapsulation, you might want to install and run [Ansible](https://github.com/ansible/ansible) itself from a [virtual environment](http://virtualenvwrapper.readthedocs.org/). Just `cd` into your Ansible directory and run `pip install -e .` to install all its dependencies.
+* By default, Dokku will be fetched from the `HEAD` of its `master` branch. If you want to use another branch, or a specific tag or commit, just change the `dokku_version=HEAD` part in `hosts`, for example `dokku_version=v0.2.2`.
+* For maximum encapsulation, you might want to install and run Ansible itself from a [virtual environment](http://virtualenvwrapper.readthedocs.org/). Just `cd` into your Ansible directory and run `pip install -e .` to install all its dependencies.
 
 
 Improvements
