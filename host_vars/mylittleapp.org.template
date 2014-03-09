@@ -2,12 +2,17 @@
 dokku_git_repo: https://github.com/progrium/dokku.git
 dokku_version: HEAD
 
-# DigitalOcean. Related settings are prefixed with 'do_' below.
+
+### DigitalOcean
+
+# Related settings are prefixed with 'do_' below.
+
+# WARNING: This is an experimental feature!
 # Uncomment the line below to enable automatic droplet/server creation.
-# WARNING: This is an experimental feature.
 #server_provider: digital_ocean
 
-# API credentials are found/created at https://cloud.digitalocean.com/api_access
+# API credentials are found/created at:
+# https://cloud.digitalocean.com/api_access
 do_client_id: abc123
 do_api_key: abc123
 
@@ -39,3 +44,19 @@ do_image_id: 350076
 # For full size and pricing info, visit:
 # https://www.digitalocean.com/pricing/
 do_size_id: 66
+
+
+### Amazon Route 53
+
+# Related settings are prefixed with 'aws_' below.
+
+# WARNING: This is an experimental feature!
+# Uncomment the line below to enable automatic DNS record creation. Make sure
+# you have already created a DNS zone for your domain name, as this is currently
+# not happening automatically.
+#dns_provider: route53
+
+# API credentials are found/created at:
+# https://console.aws.amazon.com/iam/home?#security_credential
+aws_access_key: abc123
+aws_secret_key: abc123
