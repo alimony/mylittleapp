@@ -52,6 +52,12 @@
                   state=absent
       when: server_provider == 'digital_ocean' and result|changed
 
+    - name: Make sure the new server's host name is not already in known_hosts.
+      lineinfile: dest=~/.ssh/known_hosts
+                  regexp="^{{ inventory_hostname }}"
+                  state=absent
+      when: server_provider == 'digital_ocean' and result|changed
+
     - name: Add the new server address to a group for later reference.
       add_host: name={{ result['droplet']['ip_address'] }}
                 groups=dokku
