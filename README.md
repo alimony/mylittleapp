@@ -29,11 +29,13 @@ Just follow these instructions, and you will soon be up and running:
 
 5. [Install Ansible](http://docs.ansible.com/intro_installation.html) and its dependencies on your local machine.
 
-6. Copy the file `hosts.template` to `hosts` and change "mylittleapp.org" to your own domain name.
+6. Clone this repository to your local machine: `git clone https://github.com/alimony/mylittleapp.git`
 
-7. Copy your public SSH key to the `authorized_keys` directory (e.g. `cp ~/.ssh/id_dsa.pub authorized_keys/mykey.pub`)
+7. Copy the file `hosts.template` to `hosts` and change "mylittleapp.org" to your own domain name.
 
-8. **Everything should be ready now!** Sit back, relax, and run: `ansible-playbook site.yml -v`
+8. Copy your public SSH key to the `authorized_keys` directory (e.g. `cp ~/.ssh/id_dsa.pub authorized_keys/mykey.pub`)
+
+9. **Everything should be ready now!** Sit back, relax, and run: `ansible-playbook site.yml -v`
 
 
 Deploying applications
@@ -100,9 +102,10 @@ If you are feeling adventurous, there is experimental work on creating a server 
 
 This is how to proceed:
 
- 1. Copy `mylittleapp.org.template` to `mylittleapp.org` in `host_vars` and edit as needed, uncommenting the `server_provider` and `dns_provider` lines. Be sure to fill in all `do_` and `aws_` setting values.
- 2. Copy `hosts.template` to `hosts` and change it to your own domain name.
- 3. Copy your public SSH key to the `authorized_keys` directory: `cp ~/.ssh/id_dsa.pub authorized_keys/mykey.pub`
- 4. Run the playbook and enjoy: `ansible-playbook site.yml -v`
+ 1. Clone this repository to your local machine: `git clone https://github.com/alimony/mylittleapp.git`
+ 2. Copy `mylittleapp.org.template` to `mylittleapp.org` in `host_vars` and edit as needed, uncommenting the `server_provider` and `dns_provider` lines. Be sure to fill in all `do_` and `aws_` setting values.
+ 3. Copy `hosts.template` to `hosts` and change it to your own domain name.
+ 4. Copy your public SSH key to the `authorized_keys` directory: `cp ~/.ssh/id_dsa.pub authorized_keys/mykey.pub`
+ 5. Run the playbook and enjoy: `ansible-playbook site.yml -v`
 
 Hopefully, the end result will be the same as before, with with far less work. Note that this feature is highly experimental and needs a lot more testing to be considered stable.
