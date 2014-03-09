@@ -62,6 +62,7 @@ touch .nginx
 git add .
 git commit -m 'Initial commit.'
 git remote add deploy dokku@mylittleapp.org:mylittleapp.org
+git push deploy master
 ```
 
 Touching the `.nginx` file is how the [nginx buildpack](https://github.com/rhy-jot/buildpack-nginx) detects it's a static application. All the actual files for the site should live in the `www` directory.
