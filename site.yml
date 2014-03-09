@@ -38,9 +38,12 @@
       register: result
       when: server_provider == 'digital_ocean'
 
-    - name: Display whether a droplet was created or not.
-      debug: msg="Created new droplet for {{ inventory_hostname }}"
-      when: result|changed and server_provider == 'digital_ocean'
+      # TODO: If a new server was created, make sure its ip address is not in
+      # the user's local known_hosts file. DigitalOcean tends to reuse an ip if
+      # it has been in use before by the same user. This will set of alarms by
+      # SSH because of signature mismatch. However, without running Ansible with
+      # the highest level of verbosity (-vvvv), that error is silent and will
+      # just cause all remote tasks to fail.
 
     - name: Add the new server address to a group for later reference.
       add_host: name={{ result['droplet']['ip_address'] }}
@@ -66,6 +69,43 @@
       add_host: name={{ server_provider }}
                 groups=dokku
       when: server_provider is not defined
+
+    # If the variable 'dns_provider' is specified in the host variables, we
+    # will create DNS entries for the current hostname, if not already present.
+
+    - name: Check if DNS records already exist.
+      route53: command=get
+               zone={{ inventory_hostname }}
+               record={{ inventory_hostname }}a
+               type=A
+               aws_access_key={{ aws_access_key }}
+               aws_secret_key={{ aws_secret_key }}
+      register: result
+      when: dns_provider == 'route53'
+
+    - name: Add A record to DNS for this hostname.
+      route53: command=create
+               zone={{ inventory_hostname }}
+               record={{ inventory_hostname }}
+               type=A
+               value={{ ip_address }}
+               ttl=300
+               overwrite=yes
+               aws_access_key={{ aws_access_key }}
+               aws_secret_key={{ aws_secret_key }}
+      when: dns_provider == 'route53' and result.set | length > 0
+
+    - name: Add A wildcard DNS record for this hostname.
+      route53: command=create
+               zone={{ inventory_hostname }}
+               record="*.{{ inventory_hostname }}"
+               type=A
+               value={{ ip_address }}
+               ttl=300
+               overwrite=yes
+               aws_access_key={{ aws_access_key }}
+               aws_secret_key={{ aws_secret_key }}
+      when: dns_provider == 'route53' and result.set | length > 0
 
 - hosts: dokku
   # TODO: Do not hardcode the remote username.
