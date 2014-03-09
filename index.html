@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>My Little App by alimony</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">My Little App</h1>
+        <p class="header">Easy setup of your own Heroku clone with Ansible and Dokku</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/alimony/mylittleapp/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/alimony/mylittleapp/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/alimony/mylittleapp">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/alimony">alimony</a></p>
+
+
+      </header>
+      <section>
+        <h2>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>This is an <a href="https://github.com/ansible/ansible">Ansible</a> playbook that from scratch will automatically turn a pristine server into your own Heroku clone. All you need is the server, a domain name, and a DNS service supporting alias records. Everything is powered by <a href="https://github.com/progrium/dokku">Dokku</a>, which itself runs on <a href="https://www.docker.io/">Docker</a>.</p>
+
+<h2>
+<a name="setup" class="anchor" href="#setup"><span class="octicon octicon-link"></span></a>Setup</h2>
+
+<p>(<a href="#my-little-crazy-one-shot-auto-setup">See bottom section if you are feeling adventurous.</a>)</p>
+
+<p>Just follow these instructions, and you will soon be up and running:</p>
+
+<ol>
+<li><p><strong>Register a domain name</strong> where your applications will live, for example <code>mylittleapp.org</code>. Each application will run on a subdomain of this host, e.g. <code>helloworld.mylittleapp.org</code>.</p></li>
+<li><p><strong>Set up a new server</strong> that you can access by SSH key only. This playbook has been tested on a new Ubuntu 13.04 droplet on <a href="https://www.digitalocean.com/">DigitalOcean</a>, but a variety of other setups should work as well.</p></li>
+<li>
+<p><strong>Set up two DNS entries</strong> for the new domain name, both pointing at the new server's IP address:</p>
+
+<ul>
+<li>One <code>A</code> record for <code>mylittleapp.org</code>
+</li>
+<li>
+<p>One <code>A</code> record for <code>*.mylittleapp.org</code></p>
+
+<p>Your DNS provider must support alias A records of some kind. The above example works on <a href="http://aws.amazon.com/route53/">Amazon Route 53</a>, but something like <a href="https://dnsimple.com/">DNSimple</a> should work as well.</p>
+</li>
+</ul>
+</li>
+<li><p>Make sure your new domain name points at the name servers of your DNS service.</p></li>
+<li><p><a href="http://docs.ansible.com/intro_installation.html">Install Ansible</a> and its dependencies on your local machine.</p></li>
+<li><p>Clone this repository to your local machine: <code>git clone https://github.com/alimony/mylittleapp.git</code></p></li>
+<li><p>Copy the file <code>hosts.template</code> to <code>hosts</code> and change "mylittleapp.org" to your own domain name.</p></li>
+<li><p>Copy your public SSH key to the <code>authorized_keys</code> directory (e.g. <code>cp ~/.ssh/id_dsa.pub authorized_keys/mykey.pub</code>)</p></li>
+<li><p><strong>Everything should be ready now!</strong> Sit back, relax, and run: <code>ansible-playbook site.yml -v</code></p></li>
+</ol><h2>
+<a name="deploying-applications" class="anchor" href="#deploying-applications"><span class="octicon octicon-link"></span></a>Deploying applications</h2>
+
+<p>To deploy an application to your new server, you just have to add a remote to an existing git repository and push to it. Starting with an empty directory, it can look something like this:</p>
+
+<div class="highlight highlight-bash"><pre>git init
+<span class="nb">echo</span> <span class="s1">'&lt;?php echo "Hello my little app!" ?&gt;'</span> &gt; index.php
+git add .
+git commit -m <span class="s1">'Initial commit.'</span>
+git remote add deploy dokku@mylittleapp.org:helloworld
+git push deploy master
+</pre></div>
+
+<p>There will now be application deployment magic happening, much like you're used to from Heroku. The application type is auto-detected and everything needed to run it will be installed (inside a <a href="https://www.docker.io/">Docker</a> container) and launched. To visit your new application, just go to <code>&lt;appname&gt;.mylittleapp.org</code>. (In the example above that would be <code>helloworld.mylittleapp.org</code>.)</p>
+
+<p>All subdomains that are not pointing at an application will redirect to the main hostname. If you want to run an application at the main hostname, create one with just your domain name as its name:</p>
+
+<div class="highlight highlight-bash"><pre>git init
+mkdir www
+<span class="nb">echo</span> <span class="s1">'My little home'</span> &gt; www/index.html
+touch .nginx
+git add .
+git commit -m <span class="s1">'Initial commit.'</span>
+git remote add deploy dokku@mylittleapp.org:mylittleapp.org
+git push deploy master
+</pre></div>
+
+<p>Touching the <code>.nginx</code> file is how the <a href="https://github.com/rhy-jot/buildpack-nginx">nginx buildpack</a> detects it's a static application. All the actual files for the site should live in the <code>www</code> directory.</p>
+
+<h4>
+<a name="important" class="anchor" href="#important"><span class="octicon octicon-link"></span></a>Important</h4>
+
+<p>You should really set up an application at the main hostname, or it will be in a redirection loop.</p>
+
+<h2>
+<a name="additional-notes" class="anchor" href="#additional-notes"><span class="octicon octicon-link"></span></a>Additional notes</h2>
+
+<ul>
+<li>To give more users access to the setup, just add their public SSH to key the <code>authorized_keys</code> directory and run the playbook again.</li>
+<li>By default, <a href="https://github.com/progrium/dokku">Dokku</a> will be fetched from the <code>HEAD</code> of its <code>master</code> branch. If you want to use another branch, or a specific tag or commit, just change the <code>dokku_version=HEAD</code> part in <code>hosts</code>, for example <code>dokku_version=v0.2.2</code>.</li>
+<li>For maximum encapsulation, you might want to install and run <a href="https://github.com/ansible/ansible">Ansible</a> itself from a <a href="http://virtualenvwrapper.readthedocs.org/">virtual environment</a>. Just <code>cd</code> into your Ansible directory and run <code>pip install -e .</code> to install all its dependencies.</li>
+</ul><h2>
+<a name="improvements" class="anchor" href="#improvements"><span class="octicon octicon-link"></span></a>Improvements</h2>
+
+<p>The purpose of this deliberately simple setup is to get you up and running as easy as possible. Only what should be useful to most people is included, which will continue to be the criteria for any changes. With that said, there is of course room for much improvement. If you have ideas, please <a href="https://github.com/alimony/mylittleapp/issues">open an issue</a> about it, or open a pull request directly if you have code to contribute.</p>
+
+<h2>
+<a name="disclaimer" class="anchor" href="#disclaimer"><span class="octicon octicon-link"></span></a>Disclaimer</h2>
+
+<p>This is my first public Ansible playbook ever. Much of it is probably written in a sub-optimal way, since I have yet to learn all the ins and outs of how to organize playbooks, roles, etc. If you have useful input, let me know. I will happily learn and adjust. I can't guarantee that this playbook will not hurt your server, so please only run it on a fresh one, or one that you do not care for :)</p>
+
+<hr><h4>
+<a name="my-little-crazy-one-shot-auto-setup" class="anchor" href="#my-little-crazy-one-shot-auto-setup"><span class="octicon octicon-link"></span></a>My Little Crazy One Shot Auto Setup™</h4>
+
+<p>If you are feeling adventurous, there is experimental work on creating a server and setting up DNS records as part of the playbook. This means you can go from nothing to a fully working Heroku clone with one single command. Currently, only DigitalOcean and Amazon Route 53 is supported. To try this out, make sure you meet these requirements:</p>
+
+<ul>
+<li>You have a new domain name with its name servers pointed at a hosted zone in Amazon Route 53.</li>
+<li>You have your API credentials for both DigitalOcean and Amazon Web Services handy.</li>
+<li>For DigitalOcean you will need the python package <code>dopy</code> and for Route 53 you need <code>boto</code>.</li>
+</ul><p>This is how to proceed:</p>
+
+<ol>
+<li>Clone this repository to your local machine: <code>git clone https://github.com/alimony/mylittleapp.git</code>
+</li>
+<li>Copy <code>mylittleapp.org.template</code> to <code>mylittleapp.org</code> in <code>host_vars</code> and edit as needed, uncommenting the <code>server_provider</code> and <code>dns_provider</code> lines. Be sure to fill in all <code>do_</code> and <code>aws_</code> setting values.</li>
+<li>Copy <code>hosts.template</code> to <code>hosts</code> and change it to your own domain name.</li>
+<li>Copy your public SSH key to the <code>authorized_keys</code> directory: <code>cp ~/.ssh/id_dsa.pub authorized_keys/mykey.pub</code>
+</li>
+<li>Run the playbook and enjoy the ride: <code>ansible-playbook site.yml -v</code>
+</li>
+</ol><p>Hopefully, the end result will be the same as before, with with far less work. Note that this feature is highly experimental and needs a lot more testing to be considered stable.</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		          <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-48816942-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
