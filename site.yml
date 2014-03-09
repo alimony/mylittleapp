@@ -82,7 +82,7 @@
     - name: Check if DNS records already exist.
       route53: command=get
                zone={{ inventory_hostname }}
-               record={{ inventory_hostname }}a
+               record={{ inventory_hostname }}
                type=A
                aws_access_key={{ aws_access_key }}
                aws_secret_key={{ aws_secret_key }}
@@ -99,7 +99,7 @@
                overwrite=yes
                aws_access_key={{ aws_access_key }}
                aws_secret_key={{ aws_secret_key }}
-      when: dns_provider == 'route53' and result.set | length > 0
+      when: dns_provider == 'route53' and result.set | length == 0
 
     - name: Add A wildcard DNS record for this hostname.
       route53: command=create
@@ -111,7 +111,7 @@
                overwrite=yes
                aws_access_key={{ aws_access_key }}
                aws_secret_key={{ aws_secret_key }}
-      when: dns_provider == 'route53' and result.set | length > 0
+      when: dns_provider == 'route53' and result.set | length == 0
 
 - hosts: dokku
   # TODO: Do not hardcode the remote username.
