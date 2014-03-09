@@ -106,6 +106,6 @@ This is how to proceed:
  2. Copy `mylittleapp.org.template` to `mylittleapp.org` in `host_vars` and edit as needed, uncommenting the `server_provider` and `dns_provider` lines. Be sure to fill in all `do_` and `aws_` setting values.
  3. Copy `hosts.template` to `hosts` and change it to your own domain name.
  4. Copy your public SSH key to the `authorized_keys` directory: `cp ~/.ssh/id_dsa.pub authorized_keys/mykey.pub`
- 5. Run the playbook and enjoy: `ansible-playbook site.yml -v`
+ 5. Run the playbook and enjoy the ride: `ansible-playbook site.yml -v`
 
 Hopefully, the end result will be the same as before, with with far less work. Note that this feature is highly experimental and needs a lot more testing to be considered stable.
