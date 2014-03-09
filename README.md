@@ -79,7 +79,7 @@ Additional notes
 
 * To give more users access to the setup, just add their public SSH to key the `authorized_keys` directory and run the playbook again.
 * By default, [Dokku](https://github.com/progrium/dokku) will be fetched from the `HEAD` of its `master` branch. If you want to use another branch, or a specific tag or commit, just change the `dokku_version=HEAD` part in `hosts`, for example `dokku_version=v0.2.2`.
-* For maximum encapsulation, you might want to install and run [Ansible](https://github.com/ansible/ansible) itself from a [virtual environment](http://virtualenvwrapper.readthedocs.org/).
+* For maximum encapsulation, you might want to install and run [Ansible](https://github.com/ansible/ansible) itself from a [virtual environment](http://virtualenvwrapper.readthedocs.org/). Just `cd` into your Ansible directory and run `pip install -e .` to install all its dependencies.
 
 
 Improvements
@@ -99,6 +99,7 @@ If you are feeling adventurous, there is experimental work on creating a server 
 
  * You have a new domain name with its name servers pointed at a hosted zone in Amazon Route 53.
  * You have your API credentials for both DigitalOcean and Amazon Web Services handy.
+ * For DigitalOcean you will need the python package `dopy` and for Route 53 you need `boto`.
 
 This is how to proceed:
 
