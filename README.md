@@ -99,8 +99,9 @@ If you are feeling adventurous, there is experimental work on creating a server 
 
 This is how to proceed:
 
- 1. Edit your host in the `host_vars` directory, uncommenting the `server_provider` and `dns_provider` lines. See the [host template](host_vars/mylittleapp.org.template) for more information.
- 2. Fill in all `do_` and `aws_` setting values.
- 3. Run the playbook and enjoy: `ansible-playbook site.yml -v`
+ 1. Copy `mylittleapp.org.template` to `mylittleapp.org` in `host_vars` and edit as needed, uncommenting the `server_provider` and `dns_provider` lines. Be sure to fill in all `do_` and `aws_` setting values.
+ 2. Copy `hosts.template` to `hosts` and change it to your own domain name.
+ 3. Copy your public SSH key to the `authorized_keys` directory: `cp ~/.ssh/id_dsa.pub authorized_keys/mykey.pub`
+ 4. Run the playbook and enjoy: `ansible-playbook site.yml -v`
 
 Hopefully, the end result will be the same as before, with with far less work. Note that this feature is highly experimental and needs a lot more testing to be considered stable.
