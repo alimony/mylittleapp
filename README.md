@@ -66,6 +66,10 @@ git remote add deploy dokku@mylittleapp.org:mylittleapp.org
 
 Touching the `.nginx` file is how the [nginx buildpack](https://github.com/rhy-jot/buildpack-nginx) detects it's a static application. All the actual files for the site should live in the `www` directory.
 
+#### Important
+
+You should really set up an application at the main hostname, or it will be in a redirection loop.
+
 
 Additional notes
 ----------------
