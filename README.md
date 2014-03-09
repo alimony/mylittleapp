@@ -11,7 +11,7 @@ This is an [Ansible](https://github.com/ansible/ansible) playbook that from scra
 Setup
 -----
 
-([Click here if you are feeling adventurous.](#my-little-crazy-one-shot-auto-setup))
+([See bottom section here if you are feeling adventurous.](#my-little-crazy-one-shot-auto-setup))
 
 Just follow these instructions, and you will soon be up and running:
 
