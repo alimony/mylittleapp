@@ -172,6 +172,16 @@
       with_fileglob:
         - authorized_keys/*
 
+    - name: Make sure the VHOST file is set up correctly.
+      copy: content={{ ansible_fqdn }}
+            dest=/home/dokku/VHOST
+            force=yes
+
+    - name: Make sure the HOSTNAME file is set up correctly.
+      copy: content={{ ansible_fqdn }}
+            dest=/home/dokku/HOSTNAME
+            force=yes
+
     - name: Copy custom default nginx configuration to sites
       template: src=nginx.conf.j2
                 dest=/etc/nginx/sites-available/{{ ansible_fqdn }}
