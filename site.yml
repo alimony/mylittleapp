@@ -7,7 +7,7 @@
     # If the variable 'server_provider' is specified in the host variables, we
     # will create a new server as first step in the deploy process. But any SSH
     # keys will have to be added before that can happen, which is why we
-    # delegate to localhost; there is no host yet.
+    # use a local connection for these tasks; there is no host yet.
 
     - name: Make sure all public SSH keys are on DigitalOcean.
       digital_ocean: command=ssh
@@ -38,12 +38,17 @@
       register: result
       when: server_provider == 'digital_ocean'
 
-      # TODO: If a new server was created, make sure its ip address is not in
-      # the user's local known_hosts file. DigitalOcean tends to reuse an ip if
-      # it has been in use before by the same user. This will set of alarms by
-      # SSH because of signature mismatch. However, without running Ansible with
-      # the highest level of verbosity (-vvvv), that error is silent and will
-      # just cause all remote tasks to fail.
+    # If a new server was created, it will have a new SSH signature. Since ip
+    # addresses are often reused on DigitalOcean, you will probably get one that
+    # you have used before. This will cause alarms to go of in SSH, and prevent
+    # any commands to run. To remedy, remove the relevant line from known_hosts
+    # before continuing.
+    # TODO: Do not hardcode the path to the .ssh directory.
+    - name: Make sure the new server's ip address is not already in known_hosts.
+      lineinfile: dest=~/.ssh/known_hosts
+                  regexp="^{{ result['droplet']['ip_address'] }}"
+                  state=absent
+      when: server_provider == 'digital_ocean' and result|changed
 
     - name: Add the new server address to a group for later reference.
       add_host: name={{ result['droplet']['ip_address'] }}
@@ -53,6 +58,7 @@
     # This will set up some "fake" variables by exposing those available to the
     # name based host to the ip based host. They will later be references using
     # a kind of weird hack.
+    # TODO: Reorganize the whole project to avoid such folly.
 
     - set_fact: ip_address={{ result['droplet']['ip_address'] }}
       when: server_provider == 'digital_ocean'
